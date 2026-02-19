@@ -1,4 +1,12 @@
+.env
+#Terraform
 .terraform/
+.terraform
+.terraform.lock.hcl
 *.tfstate*
-.evn
 terraform.tfvars
+
+# Chaves de acesso
+*.pem
+*.key
+credentials

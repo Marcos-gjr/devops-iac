@@ -8,7 +8,7 @@ terraform {
 }
 
 provider "aws" {
-  region = "us-east-1"
+  region = var.region
 }
 
 
@@ -42,12 +42,12 @@ resource "aws_security_group" "permitir_web_ssh" {
 
 resource "aws_instance" "servidor_devops" {
   ami           = "ami-0c7217cdde317cfec" 
-  instance_type = "t3.micro"
-  key_name      = "chave-devops-iac"
+  instance_type = var.instance_type
+  key_name      = var.key_name
   vpc_security_group_ids = [aws_security_group.permitir_web_ssh.id]
   
   tags = {
-    Name = "DevOps-IaC-Server"
+    Name = var.server_name
   }
 }
 

@@ -1,21 +1,22 @@
 ---
 - name: Configurar Servidor DevOps com Docker
   hosts: aws_servers
-  become: yes  # Executar como sudo
+  become: yes
 
   tasks:
-    - name: Atualizar cache do apt
+    - name: Atualizar cache do Apt
       apt:
         update_cache: yes
         force_apt_get: yes
 
-    - name: Instalar pacotes necessários
+    - name: Instalação de pacotes necessários
       apt:
         name:
           - apt-transport-https
           - ca-certificates
           - curl
           - software-properties-common
+          - python3-pip
         state: present
 
     - name: Adicionar chave GPG do Docker
@@ -33,8 +34,43 @@
         name: docker-ce
         state: present
 
-    - name: Garantir que o Docker está a correr
+    - name: Garantir que o grupo docker existe
+      group:
+        name: docker
+        state: present
+
+    - name: Adicionar usuario ubuntu ao grupo docker
+      user:
+        name: ubuntu
+        groups: docker
+        append: yes
+
+    - name: Garantir que o Docker ta funcionando
       service:
         name: docker
         state: started
         enabled: yes
+
+    - name: Limpar bibliotecas do Docker conflitantes
+      pip:
+        name: ["docker", "docker-py", "urllib3"]
+        state: absent
+
+    - name: Instalar biblioteca Docker estável e urllib3 compatível
+      pip:
+        name: 
+          - "docker==6.1.3" 
+          - "requests==2.31.0"
+        executable: pip3
+
+    - name: Criar container Nginx
+      community.docker.docker_container:
+        name: web-server
+        image: nginx:latest
+        state: started
+        restart_policy: always
+        docker_host: "unix:///var/run/docker.sock"
+        published_ports:
+          - "80:80"
+      vars:
+        ansible_python_interpreter: /usr/bin/python3

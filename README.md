@@ -9,7 +9,7 @@ Infraestrutura como Código (IaC) na AWS utilizando Terraform e Ansible para amb
 * Git
 
 
-# Como Rodar 
+# Como Rodar
 
 Para rodar o projeto será necessário possuir uma conta na AWS e realizar as seguintes configurações:
 
@@ -44,14 +44,25 @@ Para rodar o projeto será necessário possuir uma conta na AWS e realizar as se
   ```
   O comando chmod 400 vai garantir que somente seu usuário possa ler a chave.
 
-### 3. Terraform
+2.3 Variáveis de Ambiente  
+  Na raiz do projeto você verá um arquivo de exemplo '.env.example', esse arquivo possui todas as variáveis de ambiente utilizadas para o funcionamento do projeto em questão, após renomear o arquivo para '.env' e adicionar o valor das variáveis em questão, sempre que for rodar ```terraform apply```, abrir um novo terminal ou atualizar algum valor no arquivo de variáveis de ambiente, rodar o comando:
+  ```Bash
+  touch .env
+  ```
+  Dessa forma as variáveis de ambiente atualizarão no terminal, onde serão coletadas pelo terraform e ansible.
 
+### 3. Terraform
+  O Terraform irá provisionar o ambiente em nuvem com a máquina virtual com o SO (neste projeto) do Ubuntu 22.04.
 3.1 Clonar repositório:
   ```Bash
   git clone https://github.com/seu-usuario/devops-iac.git
   cd devops-iac/terraform
   ```
 3.2 Inicializar e configurar Terraform:
+  Acessar a pasta do Terraform:
+  ```Bash
+  cd terraform
+  ```
   Baixa os plugins da AWS
   ```Bash
   terraform init
@@ -69,13 +80,32 @@ Para rodar o projeto será necessário possuir uma conta na AWS e realizar as se
   E digite Yes para confirmar.
 
 ### Verificação do Acesso
-  Ao finalizar o apply, o terminal vai mostrar o IP Público da instância para acessar via SSH:
+  Ao finalizar o apply, o terminal vai mostrar o IP Público da instância para acessar via SSH com o seguinte comando:
   ```Bash
   ssh -i ~/.ssh/nome-da-chave.pem ubuntu@SEU_IP_PUBLICO
   ```
+  Após isso realizar atualização do valor no arquivo '.env'
 
 ### Finalização da Utilização
   Ao finalizar de utilizar e para reduzir custos na conta AWS, executar a seguinte linha para encerrar o provisionamento da aplicação:
   ```Bash
   terraform destroy
   ```
+
+### 4. Ansible 
+  Depois do provisionamento da instância com o Terraform, o Ansible será utilizado para instalar o Docker e preparar o ambiente.
+4.1 Acessar pasta do Ansible:
+  ```Bash
+  cd ../ansible
+  ```
+4.2 Após certificar que o valor do 'PUBLIC_ID' foi alterado no arquivo '.env' com o IP gerado pelo Terraform, testar a conexão com o servidor:
+  ```Bash
+  ansible aws_servers -m ping -i hosts.ini
+  ```
+  Caso retorne "pong", a conexão está funcional.
+
+4.3 Execute o Playbook para instalar o Docker:
+  ```Bash
+  ansible-playbook -i hosts.ini setup.yml
+  ```
+

@@ -74,3 +74,48 @@
           - "80:80"
       vars:
         ansible_python_interpreter: /usr/bin/python3
+
+    # Prometheus e Grafana
+
+    - name: Instalar Docker Compose via Pip
+      pip:
+        name: docker-compose
+        state: present
+
+    - name: Criar diretório para o Prometheus
+      file:
+        path: /home/ubuntu/prometheus
+        state: directory
+        owner: ubuntu
+        group: ubuntu
+
+    - name: Configurar arquivo básico do Prometheus
+      copy:
+        dest: /home/ubuntu/prometheus/prometheus.yml
+        content: |
+          global:
+            scrape_interval: 15s
+          scrape_configs:
+            - job_name: 'node_exporter'
+              static_configs:
+                - targets: ['node-exporter:9100']
+
+    - name: Criar rede do Docker para isolamento
+      community.docker.docker_network:
+        name: devops_web
+        state: present
+
+    - name: Subir Instância de Monitoramento 
+      community.docker.docker_container:
+        name: "{{ item.name }}"
+        image: "{{ item.image }}"
+        volumes: "{{ item.volumes | default([]) }}"
+        state: started
+        restart_policy: always
+        published_ports: "{{ item.ports }}"
+        networks:
+          - name: devops_web
+      loop:
+        - { name: 'grafana', image: 'grafana/grafana:latest', ports: ['3000:3000'] }
+        - { name: 'prometheus', image: 'prom/prometheus:latest', ports: ['9090:9090'], volumes: ['/home/ubuntu/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml'] }
+        - { name: 'node-exporter', image: 'prom/node-exporter:latest', ports: ['9100:9100'] }

@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - fix/ci-cd-test
 
 jobs:
   terraform-ansible-deploy:
@@ -57,6 +58,7 @@ jobs:
           ansible-playbook -i "${{ env.PUBLIC_IP }}," -u ubuntu setup.yml
 
       - name: Encerramento do Provisionamento para Evitar Custos
+        if : always()
         run: |
           echo "Infraestrutura ativa e rodando em: ${{ env.PUBLIC_IP }}"
           echo "Executando timer de 5 minutos para cancelamento do provisionamento..." 

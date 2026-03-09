@@ -32,19 +32,16 @@ jobs:
           ansible --version
 
       - name: Iniciar e Validar o Terraform
-        working-directory: ./terraform
         run: |
-          terraform init
-          terraform validate
+          terraform -chdir=terraform init
+          terraform -chdir=terraform validate
 
       - name: Aplicar o Terraform
-        working-directory: ./terraform
-        run: terraform apply -auto-approve
+        run: terraform -chdir=terraform apply -auto-approve
 
       - name: Coletar o "public_ip" e Exportar
-        working-directory: ./terraform
         run: |
-          PUBLIC_IP=$(terraform output -raw public_ip)
+          PUBLIC_IP=$(terraform -chdir=terraform output -raw public_ip)
           echo "PUBLIC_IP=$PUBLIC_IP" >> $GITHUB_ENV
           echo "IP coletado: $PUBLIC_IP"
 
@@ -54,9 +51,10 @@ jobs:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
       - name: Rodar Ansible
+        working-directory: ./ansible
         run: |
           export ANSIBLE_HOST_KEY_CHECKING=False
-          ansible-playbook -i "${{ env.PUBLIC_IP }}," -u ubuntu playbook.yml
+          ansible-playbook -i "${{ env.PUBLIC_IP }}," -u ubuntu setup.yml
 
       - name: Encerramento do Provisionamento para Evitar Custos
         run: |
@@ -64,4 +62,4 @@ jobs:
           echo "Executando timer de 5 minutos para cancelamento do provisionamento..." 
           sleep 300
           echo "Encerrando o provisionamento para evitar custos adicionais..."
-          terraform destroy -auto-approve
+          terraform -chdir=terraform destroy -auto-approve

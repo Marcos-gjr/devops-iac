@@ -42,8 +42,8 @@ jobs:
 
       - name: Coletar o "public_ip" e Exportar
         run: |
-          PUBLIC_IP=$(terraform -chdir=terraform output -raw public_ip)
-          echo "PUBLIC_IP=$PUBLIC_IP" >> $GITHUB_ENV
+          IP=$(terraform -chdir=terraform output -json public_ip | jq -r '.')
+          echo "PUBLIC_IP=$IP" >> $GITHUB_ENV
           echo "IP coletado: $PUBLIC_IP"
 
       - name: Configurar o SSH
@@ -58,7 +58,7 @@ jobs:
           ansible-playbook -i "${{ env.PUBLIC_IP }}," -u ubuntu setup.yml
 
       - name: Encerramento do Provisionamento para Evitar Custos
-        if : always()
+        if: always()
         run: |
           echo "Infraestrutura ativa e rodando em: ${{ env.PUBLIC_IP }}"
           echo "Executando timer de 5 minutos para cancelamento do provisionamento..." 

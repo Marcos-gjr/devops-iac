@@ -40,15 +40,18 @@ jobs:
       - name: Aplicar o Terraform
         run: terraform -chdir=terraform apply -auto-approve
 
-      - name: Coletar e Exportar IP
+      - name: Coletar e Exportar IP (Grep Method)
         working-directory: ./terraform
-        env:
-          TERRAFORM_WRAPPER_DISABLED: true
         run: |
-          terraform output -json public_ip > ip_output.json
-          IP=$(jq -r . ip_output.json)
-          echo "PUBLIC_IP=$IP" >> $GITHUB_ENV
-          echo "IP exportado com sucesso: $IP"
+          RAW_OUTPUT=$(terraform output -json public_ip)
+          CLEAN_IP=$(echo "$RAW_OUTPUT" | grep -oE '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | head -n 1)
+          if [ -z "$CLEAN_IP" ]; then
+            echo "Erro: sem ip valido"
+            echo "Valor capturado: $RAW_OUTPUT"
+            exit 1
+          fi
+          echo "PUBLIC_IP=$CLEAN_IP" >> $GITHUB_ENV
+          echo "IP capturado: $CLEAN_IP"
 
       - name: Configurar o SSH
         uses: webfactory/ssh-agent@v0.9.0

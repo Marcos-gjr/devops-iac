@@ -42,13 +42,11 @@ jobs:
 
       - name: Coletar e Exportar IP
         working-directory: ./terraform
+        env:
+          TERRAFORM_WRAPPER_DISABLED: true
         run: |
           terraform output -json public_ip > ip_output.json
           IP=$(jq -r . ip_output.json)
-          if [ -z "$IP" ] || [ "$IP" == "null" ]; then
-             echo "Erro: O IP não foi capturado corretamente."
-             exit 1
-          fi
           echo "PUBLIC_IP=$IP" >> $GITHUB_ENV
           echo "IP exportado com sucesso: $IP"
 

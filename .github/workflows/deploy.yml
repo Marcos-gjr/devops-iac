@@ -52,12 +52,17 @@ jobs:
           echo "PUBLIC_IP=$CLEAN_IP" >> $GITHUB_ENV
           echo "IP capturado: $CLEAN_IP"
 
-      - name: Configurar SSH Key
+      - name: Configurar SSH e Aguardar Subir a Instância
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.AWS_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 400 ~/.ssh/id_rsa
-          ssh-keyscan -H ${{ env.PUBLIC_IP }} >> ~/.ssh/known_hosts
+          
+          echo "Aguardando o servidor SSH subir no IP ${{ env.PUBLIC_IP }}..."
+          for i in {1..5}; do
+            ssh-keyscan -H ${{ env.PUBLIC_IP }} >> ~/.ssh/known_hosts && break || \
+            echo "Tentativa $i falhou, aguardando..." && sleep 20;
+          done
 
       - name: Rodar Ansible
         working-directory: ./ansible

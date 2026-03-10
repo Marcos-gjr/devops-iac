@@ -40,11 +40,17 @@ jobs:
       - name: Aplicar o Terraform
         run: terraform -chdir=terraform apply -auto-approve
 
-      - name: Coletar o "public_ip" e Exportar
+      - name: Coletar e Exportar IP
+        working-directory: ./terraform
         run: |
-          IP=$(terraform -chdir=terraform output -json public_ip | jq -r '.')
+          terraform output -json public_ip > ip_output.json
+          IP=$(jq -r . ip_output.json)
+          if [ -z "$IP" ] || [ "$IP" == "null" ]; then
+             echo "Erro: O IP não foi capturado corretamente."
+             exit 1
+          fi
           echo "PUBLIC_IP=$IP" >> $GITHUB_ENV
-          echo "IP coletado: $PUBLIC_IP"
+          echo "IP exportado com sucesso: $IP"
 
       - name: Configurar o SSH
         uses: webfactory/ssh-agent@v0.9.0
@@ -61,7 +67,7 @@ jobs:
         if: always()
         run: |
           echo "Infraestrutura ativa e rodando em: ${{ env.PUBLIC_IP }}"
-          echo "Executando timer de 5 minutos para cancelamento do provisionamento..." 
-          sleep 300
+          echo "Executando timer de 2.5 minutos para cancelamento do provisionamento..." 
+          sleep 150
           echo "Encerrando o provisionamento para evitar custos adicionais..."
           terraform -chdir=terraform destroy -auto-approve

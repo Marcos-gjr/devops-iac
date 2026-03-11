@@ -69,7 +69,7 @@ jobs:
           echo "[aws_servers]" > hosts.ini
           echo "${{ env.PUBLIC_IP }}" >> hosts.ini
           
-          ansible-playbook -i hosts.ini playbook.yml \
+          ansible-playbook -i hosts.ini setup.yml \
           -u ubuntu \
           --private-key ~/.ssh/id_rsa \
           --ssh-common-args='-o StrictHostKeyChecking=no'

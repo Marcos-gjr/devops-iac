@@ -13,8 +13,15 @@ Infraestrutura como Código (IaC) na AWS utilizando Terraform e Ansible para amb
 * Grafana
 * Git
 
+# Pipeline (CI/CD)
+Ao Realizar um `Push`, a pipeline executa o provisionamento do servidor, para isso será necessário:
+### Definir Secrets no Github Actions
+* **AWS_ACCESS_KEY_ID:** Chave de acesso da AWS.
+* **AWS_SECRET_ACCESS_KEY:** Chave secreta da AWS.
+* **AWS_PRIVATE_KEY:** Apenas o conteúdo da tua chave `.pem` para acesso SSH. (Abrir arquivo em TXT e copiar todo o conteudo)
 
-# Como Rodar
+
+# Como Rodar Localmente
 
 Para rodar o projeto será necessário possuir uma conta na AWS e realizar as seguintes configurações:
 

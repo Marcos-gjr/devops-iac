@@ -65,17 +65,28 @@
           - "requests==2.31.0"
         executable: pip3
 
-    - name: Criar container Nginx
+    - name: Criar diretório de configuração do Nginx
+      file:
+        path: /home/ubuntu/nginx
+        state: directory
+
+    - name: Repassar configuração do Nginx
+      template:
+        src: templates/nginx.conf.j2
+        dest: /home/ubuntu/nginx/nginx.conf
+
+    - name: Subir container Nginx como PRoxy reverso
       community.docker.docker_container:
-        name: web-server
+        name: nginx-proxy
         image: nginx:latest
         state: started
         restart_policy: always
-        docker_host: "unix:///var/run/docker.sock"
         published_ports:
           - "80:80"
-      vars:
-        ansible_python_interpreter: /usr/bin/python3
+        networks:
+          - name: devops_web
+        volumes:
+          - /home/ubuntu/nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
 
     # Prometheus e Grafana
 

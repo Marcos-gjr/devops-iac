@@ -2,6 +2,8 @@
 - name: Configurar Servidor DevOps com Docker
   hosts: aws_servers
   become: yes
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
 
   tasks:
     - name: Atualizar cache do Apt
@@ -26,7 +28,7 @@
 
     - name: Adicionar repositório Docker
       apt_repository:
-        repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable
+        repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_facts['distribution_release'] }} stable
         state: present
 
     - name: Instalar Docker Engine

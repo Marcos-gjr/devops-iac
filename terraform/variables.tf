@@ -1,5 +1,6 @@
 variable "key_name" {
   type = string
+  default = "chave-devops-iac"
 }
 
 variable "region" {

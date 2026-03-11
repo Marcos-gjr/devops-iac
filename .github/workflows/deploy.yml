@@ -28,6 +28,7 @@ jobs:
         uses: hashicorp/setup-terraform@v2
         with:
           terraform_version: 1.5.0
+          terraform_wrapper: false
 
       - name: Verificar Versões das Ferramentas
         run: |
@@ -76,7 +77,7 @@ jobs:
           ansible-playbook -i hosts.ini ansible/setup.yml \
           -u ubuntu \
           --private-key ~/.ssh/id_rsa \
-          --ssh-common-args='-o StrictHostKeyChecking=no'
+          --ssh-common-args='-o StrictHostKeyChecking=no' 2>&1
 
       - name: Encerramento do Provisionamento para Evitar Custos
         if: always()

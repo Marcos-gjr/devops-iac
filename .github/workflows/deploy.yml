@@ -59,16 +59,20 @@ jobs:
           chmod 400 ~/.ssh/id_rsa
           
           echo "Aguardando o servidor SSH subir no IP ${{ env.PUBLIC_IP }}..."
-          for i in {1..5}; do
+          for i in {1..6}; do
             ssh-keyscan -H ${{ env.PUBLIC_IP }} >> ~/.ssh/known_hosts && break || \
-            echo "Tentativa $i falhou, aguardando..." && sleep 20;
+            echo "Tentativa $i falhou, aguardando..." && sleep 10;
           done
 
-      - name: Rodar Ansible
-        working-directory: ./ansible
+      - name: Criar Inventário temporário para Rodar o Ansible
         run: |
-          export ANSIBLE_HOST_KEY_CHECKING=False
-          ansible-playbook -i "${{ env.PUBLIC_IP }}," -u ubuntu setup.yml
+          echo "[aws_servers]" > hosts.ini
+          echo "${{ env.PUBLIC_IP }}" >> hosts.ini
+          
+          ansible-playbook -i hosts.ini playbook.yml \
+          -u ubuntu \
+          --private-key ~/.ssh/id_rsa \
+          --ssh-common-args='-o StrictHostKeyChecking=no'
 
       - name: Encerramento do Provisionamento para Evitar Custos
         if: always()

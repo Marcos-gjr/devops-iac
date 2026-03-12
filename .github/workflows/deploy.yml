@@ -83,7 +83,7 @@ jobs:
         if: always()
         run: |
           echo "Infraestrutura ativa e rodando em: ${{ env.PUBLIC_IP }}"
-          echo "Executando timer de 2.5 minutos para cancelamento do provisionamento..." 
-          sleep 150
+          echo "Executando timer de 5 minutos para cancelamento do provisionamento..." 
+          sleep 300
           echo "Encerrando o provisionamento para evitar custos adicionais..."
           terraform -chdir=terraform destroy -auto-approve

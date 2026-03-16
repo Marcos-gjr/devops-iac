@@ -1,5 +1,8 @@
 # DevOps-IaC
-Infraestrutura como Código (IaC) na AWS utilizando Terraform e Ansible para ambientes escaláveis focados nos sistemas free tier da AWS. Além 
+Infraestrutura como Código (IaC) na AWS utilizando Terraform e Ansible para ambientes escaláveis focados nos sistemas free tier da AWS.
+
+Este projeto tem como objetivo o provisionamento e a configuração automatizada de um ambiente escalável utilizando Infraestrutura como Código (IaC) na AWS com as principais ferramentas sendo **Terraform** e **Ansible** e mantendo foco nos sistemas free tier da AWS. Na atualização atual, esta infraestrutura serve como a plataforma base para a hospedagem e monitoramento do projeto [Data-Dashboard](https://github.com/marcos-gjr/data-dashboard).
+
 
 # Stack de Tecnologias
 
@@ -12,6 +15,11 @@ Infraestrutura como Código (IaC) na AWS utilizando Terraform e Ansible para amb
 * Node Exporter
 * Grafana
 * Git
+  
+
+# Integração com Data-Dashboard
+Este repositório atua como a camada de infraestrutura (PaaS) e cria a rede Docker `devops_web` para utilização do ecossistema de dados. O projeto foi desenhado para que, em ambiente de produção, provisione a infraestrutura que será utilizada para rodar a aplicação do repositório [Data-Dashboard](https://github.com/marcos-gjr/data-dashboard).
+
 
 # Pipeline (CI/CD)
 Ao Realizar um `Push`, a pipeline executa o provisionamento do servidor, para isso será necessário:
@@ -38,6 +46,7 @@ Para rodar o projeto será necessário possuir uma conta na AWS e realizar as se
  2. Adicione o nome.
  3. Coloque no formato ```.pem```.
  4. E cerfique que a **região** é a mesma utilizada no projeto inteiro.
+    
 
 ### 2. Configuração do ambiente local
 2.1 Configuração do AWS CLI
@@ -66,6 +75,7 @@ Para rodar o projeto será necessário possuir uma conta na AWS e realizar as se
   touch .env
   ```
   Dessa forma as variáveis de ambiente atualizarão no terminal, onde serão coletadas pelo terraform e ansible.
+  
 
 ### 3. Terraform
   O Terraform irá provisionar o ambiente em nuvem com a máquina virtual com o SO (neste projeto) do Ubuntu 22.04.
@@ -101,12 +111,14 @@ Para rodar o projeto será necessário possuir uma conta na AWS e realizar as se
   ssh -i ~/.ssh/nome-da-chave.pem ubuntu@PUBLIC_IP
   ```
   Após isso realizar atualização do valor no arquivo ```.env```
+  
 
 ### Finalização da Utilização
   Ao finalizar de utilizar e para reduzir custos na conta AWS(mantendo com zero custos até menos de 700 horas por mês), executar a seguinte linha para encerrar o provisionamento da aplicação:
   ```Bash
   terraform destroy
   ```
+
 
 ### 4. Ansible 
   Depois do provisionamento da instância com o Terraform, o Ansible será utilizado para instalar o Docker e preparar o ambiente Web e de monitoramento.
@@ -124,6 +136,7 @@ Para rodar o projeto será necessário possuir uma conta na AWS e realizar as se
   ```Bash
   ansible-playbook -i hosts.ini setup.yml
   ```
+
 
 ### 5. Monitoramento com Grafana e Prometheus
   Com o ambiente web em funcionamento, o monitoramento da máquina virtual entra em ação através do **Node Exporter**(Agente de hardware para coleta de métricas), **Prometheus**(coleta das métricas do Node Exporter) e **Grafana**(Visualização dos dados em dashboard).
@@ -145,5 +158,7 @@ Para rodar o projeto será necessário possuir uma conta na AWS e realizar as se
  * No campo "Import via grafana.com", insira o ID: **1860** (Dashboard completo Node Exporter Full).
  * Clique em **Load** e selecione o Prometheus como fonte de dados.
  * Clique em **Import**.
+
+   
 
 ### Dessa forma o projeto está rodando com todas as ferramentas disponíveis!
